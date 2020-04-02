@@ -1,4 +1,4 @@
-
+const  chalk = require('chalk')
 const fs= require ('fs')
 
 const getNotes = function () {
@@ -11,9 +11,7 @@ const addNote= function (title, body){
     //array filter
     const duplicatenotes= notes.filter(function (note) {
         return note.title===title
-
     })
-
     if (duplicatenotes===0) notes.push({
         title:title,
         body:body
@@ -22,10 +20,6 @@ const addNote= function (title, body){
     console.log('no duplicates')
 
 }
-
-
-
-
 const saveNotes=function (notes) {
     const dataJson= JSON.stringify(notes)
     fs.writeFileSync('notes.json', dataJson)
@@ -44,9 +38,28 @@ const loadNotes= function() {
     }
 }
 
+//setting commedd remove
+const removeNote = function(title){
+    const notes= loadNotes()
+    const titleToKeep= notes.filter(function(note){
+        return note.title !==title
+    })
+
+    if (notes.length>titleToKeep.length){
+        console.log(chalk.underline.bold('the title is removed '))
+    }
+    else{(console.log(chalk.gray('nothing removed')))}
+
+    saveNotes(titleToKeep)
+
+
+}
+
 // we exporting an object with 2 properties one for each function.
 module.exports = {
     getNotes: getNotes,
-    addNote: addNote
+    addNote: addNote,
+    removeNote:removeNote
+
 
 }
