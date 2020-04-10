@@ -1,65 +1,76 @@
-const  chalk = require('chalk')
-const fs= require ('fs')
+const fs = require('fs')
+const chalk = require('chalk')
 
-const getNotes = function () {
-    return 'Your notes...'
-}
+const addNote = (title, body) => {
+    const notes = loadNotes()
+    const duplicateNotes = notes.filter((note) => note.title === title)
 
-//this function if for getting the note saved to the data store
-const addNote= function (title, body){
-    const notes= loadNotes()
-    //array filter
-    const duplicatenotes= notes.filter(function (note) {
-        return note.title===title
-    })
-    if (duplicatenotes===0) notes.push({
-        title:title,
-        body:body
-    })
-    saveNotes(notes)
-    console.log('no duplicates')
-
-}
-const saveNotes=function (notes) {
-    const dataJson= JSON.stringify(notes)
-    fs.writeFileSync('notes.json', dataJson)
-
-}
-
-//re-usable function to load the notes
-const loadNotes= function() {
-    try{
-        const dataBuffer = fs.readFileSync('notes.json')
-        const dataJSON= dataBuffer.toString()
-        return JSON.parse(dataJSON)
+    if (duplicateNotes.length === 0) {
+        notes.push({
+            title: title,
+            body: body
+        })
+        saveNotes(notes)
+        console.log(chalk.green.inverse('New note added!'))
+    } else {
+        console.log(chalk.red.inverse('Note title taken!'))
     }
-    catch (e) {
+}
+
+const removeNote = (title) => {
+    const notes = loadNotes()
+    const notesToKeep = notes.filter((note) => note.title !== title)
+
+    if (notes.length > notesToKeep.length) {
+        console.log(chalk.green.inverse('Note removed!'))
+        saveNotes(notesToKeep)
+    } else {
+        console.log(chalk.red.inverse('No note found!'))
+    }
+}
+
+const saveNotes = (notes) => {
+    const dataJSON = JSON.stringify(notes)
+    fs.writeFileSync('notes.txt.json', dataJSON)
+}
+
+const loadNotes = () => {
+    try {
+        const dataBuffer = fs.readFileSync('notes.txt.json')
+        const dataJSON = dataBuffer.toString()
+        return JSON.parse(dataJSON)
+    } catch (e) {
         return []
     }
 }
 
-//setting commedd remove
-const removeNote = function(title){
+const listNotes=() => {
     const notes= loadNotes()
-    const titleToKeep= notes.filter(function(note){
-        return note.title !==title
+
+    console.log(chalk.green.inverse('Your notes.txt'))
+    notes.forEach((note) => {
+        console.log(note.title)
     })
-
-    if (notes.length>titleToKeep.length){
-        console.log(chalk.underline.bold('the title is removed '))
-    }
-    else{(console.log(chalk.gray('nothing removed')))}
-
-    saveNotes(titleToKeep)
-
 
 }
 
-// we exporting an object with 2 properties one for each function.
+const readNote= (title)=>{
+    const notes = loadNotes()
+    const note = notes.find((note)=> note.title=== title)
+    if (note){
+        console.log(note.title)
+        console.log(note.body)
+
+    }else {
+        console.log('not found')
+    }
+
+}
+
 module.exports = {
     getNotes: getNotes,
     addNote: addNote,
-    removeNote:removeNote
-
-
+    removeNote: removeNote,
+    listNotes: listNotes,
+    removeNote:readNote
 }
